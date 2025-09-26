@@ -2,6 +2,7 @@
 $page_title = "Add Category"; // Set the page title
 require_once '../../includes/header.php'; // Include the shared header
 require_once '../../../config.php'; // Database connection
+require_once '../../../public/includes/helpers.php'; // Include helper functions
 require_once '../../controllers/CategoryController.php';
 $categoryController = new CategoryController($pdo);
 $error = null; // Initialize error variable

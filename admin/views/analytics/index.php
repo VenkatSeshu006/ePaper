@@ -16,7 +16,7 @@ if ($_SESSION['role'] !== 'admin') {
     exit();
 }
 
-require_once __DIR__ . '/../../config.php';
+require_once __DIR__ . '/../../../config.php';
 require_once __DIR__ . '/../../controllers/AnalyticsController.php';
 
 // Initialize analytics controller

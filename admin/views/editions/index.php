@@ -19,7 +19,14 @@ $categories = $categoryController->getAllCategories();
 </div>
 <section class="content">
     <div class="container-fluid">
-        <a href="add.php" class="btn btn-primary mb-3">Add New Edition</a>
+        <div class="mb-3">
+            <a href="add.php" class="btn btn-primary">
+                <i class="fas fa-plus-circle"></i> Create New Edition
+            </a>
+            <a href="add.php" class="btn btn-outline-secondary">
+                <i class="fas fa-plus"></i> Quick Add (Legacy)
+            </a>
+        </div>
         <table class="table table-bordered">
             <thead>
                 <tr>

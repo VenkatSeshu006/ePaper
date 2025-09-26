@@ -1,0 +1,721 @@
+/* Boxed layout */
+.boxed-layout {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 15px;
+    background-color: white;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Header styling */
+.edition-header {
+    background-color: #B4D4EF;
+    color: white;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    height: auto;
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+}
+
+.edition-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #000;
+    margin-right: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 30%;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    background-color: white;
+    border-color: #2F5779;
+    border-radius: 2px;
+}
+
+.page-link {
+    background-color: white;
+    color: #2F5779;
+    border: 1px solid black;
+    padding: 6px 10px;
+    border-radius: 2px;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: none;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.page-link.active {
+    background-color: #2F5779;
+    color: white;
+    border-color: #2F5779;
+    font-weight: bold;
+}
+
+.page-link:hover:not(.active) {
+    background-color: #2F5779;
+    color: white;
+    border-color: #2F5779;
+}
+
+.page-link.prev-group, .page-link.next-group {
+    background-color: #2F5779;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+}
+
+.page-link.prev-group:hover, .page-link.next-group:hover {
+    background-color: #1E3A5F; /* Darker shade for hover */
+}
+
+/* Header buttons container */
+.header-buttons {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+/* Header button styling (desktop and mobile default) */
+.header-button {
+    background-color: #2F5779; /* Darker blue for contrast on #B4D4EF */
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 2px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header-button:hover {
+    background-color: #1E3A5F; /* Darker shade on hover */
+}
+
+.header-button i {
+    margin-right: 5px; /* Space between icon and text */
+}
+
+/* Ensure the spinner is centered and sized appropriately */
+.header-button .fa-spinner {
+    font-size: 14px;
+    margin-right: 5px;
+}
+
+/* Optional: Disable pointer events during loading */
+.header-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Left column (Thumbnails) */
+.edition-navigation {
+    max-height: calc(100vh - 150px);
+    overflow-y: auto;
+    padding: 10px;
+    background-color: #f5f5f5;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+.navigation-previews {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Increased spacing between thumbnails */
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.preview-link {
+    display: block;
+    text-decoration: none;
+    position: relative;
+    width: 100px; /* Fixed width for consistency */
+}
+
+.preview-image {
+    width: 100px;
+    height: 150px;
+    object-fit: contain;
+    border: 1px solid #ddd;
+    border-radius: 2px;
+    transition: border 0.2s;
+}
+
+.preview-link.active .preview-image {
+    border: 2px solid #008cff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.page-number {
+    font-size: 12px;
+    color: #000;
+    text-align: center;
+    position: relative; /* Changed from absolute to relative */
+    margin-top: 5px; /* Space below the thumbnail */
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 2px 8px;
+    border-radius: 2px;
+    display: block; /* Ensure it’s on its own line */
+}
+
+/* Cropper buttons inside crop box */
+.cropper-share-btn, .cropper-cancel-btn {
+    position: absolute;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    font-size: 14px;
+    z-index: 1002; /* Above Cropper.js layers */
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.cropper-share-btn {
+    background-color: #2F5779; /* Blue for Share */
+    color: white;
+}
+
+.cropper-share-btn:hover {
+    background-color: #1E3A5F; /* Darker blue on hover */
+}
+
+.cropper-cancel-btn {
+    background-color: #FF0000; /* Red for Cancel */
+    color: white;
+}
+
+.cropper-cancel-btn:hover {
+    background-color: #CC0000; /* Darker red on hover */
+}
+
+/* Right column (Main Image) */
+.edition-viewer {
+    padding: 10px;
+}
+
+.image-container {
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    position: relative;
+    background-color: #fff;
+    cursor: pointer; /* Default cursor */
+}
+
+.image-container.dragging {
+    cursor: grabbing; /* Cursor while dragging */
+}
+
+.full-image {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    transition: transform 0.2s;
+}
+
+/* Mobile Edition Title Above Image */
+.mobile-edition-title {
+    display: none;
+    font-size: 16px;
+    font-weight: bold;
+    color: #000;
+    padding: 10px;
+    background-color: #f5f5f5;
+    text-align: center;
+}
+
+/* Controls */
+.controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    margin-top: 10px;
+    padding: 5px;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+}
+
+.page-counter {
+    font-size: 14px;
+    color: #000;
+    margin-right: 5px;
+}
+
+.zoom-in, .zoom-out, .full-screen, .prev-button, .next-button {
+    background-color: #2F5779;
+    color: white;
+    border: none;
+    padding: 8px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.zoom-in:hover, .zoom-out:hover, .full-screen:hover, .prev-button:hover, .next-button:hover {
+    background-color: #000000;
+}
+
+.zoom-in i, .zoom-out i, .full-screen i, .prev-button i, .next-button i {
+    font-size: 16px; /* Ensure icons are clear */
+}
+
+/* Big Navigation Buttons on Image */
+.image-prev-button, .image-next-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    z-index: 10;
+    opacity: 1; /* Always visible */
+}
+
+.image-prev-button {
+    left: 20px;
+}
+
+.image-next-button {
+    right: 20px;
+}
+
+.image-prev-button:hover, .image-next-button:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+.image-prev-button i, .image-next-button i {
+    line-height: 60px;
+}
+
+/* Social Share Buttons */
+.social-share {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    background-color: #f5f5f5;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 10px;
+}
+
+/* Floating Share Button */
+.floating-share-btn {
+    display: flex;
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 50px;
+    height: 50px;
+    background-color: #2F5779;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.floating-share-btn:hover {
+    background-color: #1E3A5F;
+}
+
+.floating-share-btn i {
+    font-size: 20px; /* Ensure icon fits nicely in circle */
+}
+
+/* Share Popup Modal */
+#sharePopup {
+    display: none;
+    position: fixed;
+    bottom: 80px;
+    left: 20px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1001;
+    padding: 10px;
+    max-width: 200px;
+}
+
+#sharePopup a {
+    display: block;
+    padding: 8px 12px;
+    color: #000;
+    text-decoration: none;
+    font-size: 14px;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#sharePopup a:hover {
+    background-color: #f5f5f5;
+}
+
+.social-share-btn {
+    flex-grow: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 50px;
+    border: none;
+    border-radius: 0;
+    font-size: 16px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.social-share-btn i {
+    color: white;
+}
+
+.social-share-btn[data-platform="facebook"] { background-color: #1877F2; }
+.social-share-btn[data-platform="twitter"] { background-color: #000000; }
+.social-share-btn[data-platform="whatsapp"] { background-color: #25D366; }
+.social-share-btn[data-platform="linkedin"] { background-color: #0A66C2; }
+.social-share-btn[data-platform="telegram"] { background-color: #0088CC; }
+.social-share-btn[data-platform="print"] { background-color: #FF0000; }
+.social-share-btn[data-platform="email"] { background-color: #0072C6; }
+
+.social-share-btn:hover {
+    transform: scale(1.1);
+    opacity: 0.9;
+}
+
+/* Close Share Button in Popup */
+.close-share-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 20px;
+    height: 20px;
+    background-color: transparent;
+    color: #000;
+    border: none;
+    border-radius: 50%;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.close-share-btn:hover {
+    color: #FF0000; /* Red on hover for visibility */
+}
+
+/* Popup Styles */
+.popup-logo {
+    max-height: 50px;
+    display: block;
+    margin: 0 auto;
+}
+
+.popup-image {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+.modal-dialog.modal-xl {
+    max-width: 90vw;
+}
+
+.full-image {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    transition: transform 0.2s;
+    cursor: pointer;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    /* Hide left column thumbnails on mobile */
+    .edition-navigation {
+        display: none;
+    }
+    
+    /* Make main viewer full width when thumbnails are hidden */
+    .edition-viewer {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .header-top {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .edition-title {
+        max-width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .pagination {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .button-placeholder {
+        margin-top: 10px;
+        width: 100%;
+        text-align: center;
+    }
+}
+
+@media (max-width: 576px) {
+    .edition-header {
+        padding: 8px;
+    }
+
+    /* Hide title in blue strip */
+    .edition-title {
+        display: none;
+    }
+
+    /* Remove white background from blue strip, use full blue for header */
+    .header-top {
+        background-color: transparent; /* Remove white background */
+        padding: 5px 10px;
+        border-radius: 0;
+    }
+
+    /* Remove pagination, use full width for header buttons with icons and text */
+    .pagination {
+        display: none; /* Hide pagination on mobile */
+    }
+
+    .header-top {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-around; /* Distribute buttons evenly */
+    }
+
+    .header-buttons {
+        flex-grow: 1;
+        justify-content: space-around;
+        margin: 0;
+    }
+
+    .header-button {
+        padding: 6px 12px;
+        font-size: 12px; /* Show text */
+        width: auto; /* Allow dynamic width based on content */
+        height: 30px; /* Reduced height */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 80px; /* Minimum width to prevent overflow */
+        max-width: 33%; /* Ensure three buttons fit without overflowing */
+        background-color: #2F5779; /* Match button color to header for consistency */
+        color: white; /* Ensure text is visible on blue */
+    }
+
+    .header-button:hover {
+        background-color: #1E3A5F; /* Darker shade on hover */
+    }
+
+    .header-button i {
+        margin-right: 5px; /* Restore space for icon and text */
+    }
+
+    .pdf-download i, .clip-button i, #archive-button i {
+        font-size: 14px; /* Smaller icon size */
+    }
+
+    /* Mobile edition title above image */
+    .mobile-edition-title {
+        display: block;
+    }
+
+    /* Controls: Single line, 5 icons in one row */
+    .controls {
+        flex-direction: row;
+        gap: 5px;
+        padding: 5px;
+        background-color: #f5f5f5;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .zoom-in, .zoom-out, .full-screen, .prev-button, .next-button {
+        width: 40px; /* Fixed width for icons */
+        height: 40px; /* Fixed height for icons */
+        padding: 0;
+        margin-bottom: 0;
+        font-size: 0; /* Hide text */
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .zoom-in i, .zoom-out i, .full-screen i, .prev-button i, .next-button i {
+        font-size: 16px; /* Ensure icons are clear */
+    }
+
+    /* Hide social share buttons on mobile */
+    .social-share {
+        display: none;
+    }
+
+    .preview-image {
+        width: 60px;
+        height: 90px;
+    }
+
+    .page-number {
+        font-size: 8px;
+        margin-top: 2px;
+        padding: 1px 6px;
+    }
+
+    /* Hide on-image navigation buttons on mobile */
+    .image-prev-button, .image-next-button {
+        display: none;
+    }
+    
+    /* Move floating share button up on mobile to avoid secondary header */
+    .floating-share-btn {
+        bottom: 80px; /* Move up from 20px to 80px to clear sticky header */
+    }
+    
+    /* Also move share popup up accordingly */
+    #sharePopup {
+        bottom: 140px; /* Move up from 80px to 140px */
+    }
+}
+
+/* Archive Dropdown */
+.header-buttons {
+    position: relative;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.header-buttons .dropdown-toggle {
+    background-color: #2F5779;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 2px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.header-buttons .dropdown-toggle:hover {
+    background-color: #1E3A5F;
+}
+
+.header-buttons .dropdown-menu {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 2px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    min-width: 250px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.header-buttons .dropdown-item {
+    font-size: 14px;
+    color: #000;
+    padding: 5px 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.header-buttons .dropdown-item:hover {
+    background-color: #B4D4EF;
+    color: #000;
+}
+
+/* Datepicker Container (Desktop) */
+#datepicker-container {
+    display: none;
+}
+
+/* Ensure datepicker doesn't overlap or push other elements */
+.edition-header {
+    position: relative;
+}
+
+/* Public Area Mapping Styles */
+.public-area-box {
+    position: absolute;
+    background-color: transparent; /* Completely transparent by default */
+    border: 2px solid transparent; /* Transparent border by default */
+    cursor: pointer;
+    z-index: 10;
+    pointer-events: auto;
+    transition: all 0.3s ease;
+}
+
+/* Show individual area box only when hovered */
+.public-area-box:hover {
+    background-color: rgba(128, 128, 128, 0.4); /* Grey with transparency on hover */
+    border-color: #ff0000; /* Red border on hover */
+}
+
+/* Area label for public view */
+.public-area-label {
+    position: absolute;
+    top: -25px;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 2px 6px;
+    font-size: 12px;
+    border-radius: 3px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+/* Show labels when individual area box is hovered */
+.public-area-box:hover .public-area-label {
+    opacity: 1;
+}

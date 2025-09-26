@@ -1,0 +1,16 @@
+# paper.sitework.space/.htaccess
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Redirect /edition/5 to /public/edition.php?id=5
+    RewriteRule ^public/edition/([0-9]+)$ public/edition.php?id=$1 [L,QSA]
+
+    # Redirect /category/telanagana to /public/categories.php?alias=telanagana
+    RewriteRule ^public/category/([^/]+)$ public/categories.php?alias=$1 [L,QSA]
+
+    # Remove index.php from URL
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ public/$1 [L,QSA]
+</IfModule>

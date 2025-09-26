@@ -1,0 +1,16 @@
+<?php
+// Database Configuration
+$host = 'localhost'; // Database host
+$db = 'saas';      // Database name
+$user = 'root'; // Database username
+$pass = ''; // Database password
+
+define('BASE_URL', 'http://localhost/ePaper/');
+
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$db;charset=utf8mb4", $user, $pass);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Database connection failed: " . $e->getMessage());
+}
+?>

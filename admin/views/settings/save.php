@@ -37,7 +37,7 @@ try {
         $logoPath = $uploadDir . basename($_FILES['site_logo']['name']);
         move_uploaded_file($_FILES['site_logo']['tmp_name'], $logoPath);
         $stmt = $pdo->prepare("UPDATE settings SET value = ? WHERE key_name = 'site_logo'");
-        $stmt->execute(["/uploads/settings/" . basename($_FILES['site_logo']['name'])]);
+        $stmt->execute(["/ePaper/uploads/settings/" . basename($_FILES['site_logo']['name'])]);
     }
 
     $success = 'Settings updated successfully.';

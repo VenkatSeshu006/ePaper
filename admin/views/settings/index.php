@@ -48,21 +48,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $faviconPath = $uploadDir . basename($_FILES['site_favicon']['name']);
             move_uploaded_file($_FILES['site_favicon']['tmp_name'], $faviconPath);
             $stmt = $pdo->prepare("UPDATE settings SET value = ? WHERE key_name = 'site_favicon'");
-            $stmt->execute(["/uploads/settings/" . basename($_FILES['site_favicon']['name'])]);
+            $stmt->execute(["/ePaper/uploads/settings/" . basename($_FILES['site_favicon']['name'])]);
         }
 
         if (!empty($_FILES['site_logo']['tmp_name'])) {
             $logoPath = $uploadDir . basename($_FILES['site_logo']['name']);
             move_uploaded_file($_FILES['site_logo']['tmp_name'], $logoPath);
             $stmt = $pdo->prepare("UPDATE settings SET value = ? WHERE key_name = 'site_logo'");
-            $stmt->execute(["/uploads/settings/" . basename($_FILES['site_logo']['name'])]);
+            $stmt->execute(["/ePaper/uploads/settings/" . basename($_FILES['site_logo']['name'])]);
         }
 
         if (!empty($_FILES['area_mapping_logo']['tmp_name'])) {
             $areaMappingLogoPath = $uploadDir . basename($_FILES['area_mapping_logo']['name']);
             move_uploaded_file($_FILES['area_mapping_logo']['tmp_name'], $areaMappingLogoPath);
             $stmt = $pdo->prepare("UPDATE settings SET value = ? WHERE key_name = 'area_mapping_logo'");
-            $stmt->execute(["/uploads/settings/" . basename($_FILES['area_mapping_logo']['name'])]);
+            $stmt->execute(["/ePaper/uploads/settings/" . basename($_FILES['area_mapping_logo']['name'])]);
         }
 
         // Redirect to reload the page

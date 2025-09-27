@@ -170,28 +170,23 @@ $current_url = "$base_url/public/edition.php?id=$edition_id";
     background: <?= htmlspecialchars($colors['secondary_header_background'] ?? '#2c3e50') ?>;
     border-bottom: 3px solid var(--accent-color, #3498db);
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    position: sticky;
-    top: 0;
+    position: relative; /* Changed from sticky to relative */
     z-index: 999;
     margin-top: 0;
 }
 
-/* Mobile: Sticky to bottom */
+/* Mobile: Static positioning (no longer sticky) */
 @media (max-width: 768px) {
     .secondary-header {
-        position: fixed;
-        top: auto;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        border-bottom: none;
-        border-top: 3px solid var(--accent-color, #3498db);
-        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        position: relative; /* Changed from fixed to relative */
+        border-bottom: 3px solid var(--accent-color, #3498db);
+        border-top: none;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
     
-    /* Add padding to body to prevent content from being hidden behind fixed header */
+    /* Remove padding since header is no longer fixed */
     body {
-        padding-bottom: 80px;
+        padding-bottom: 0;
     }
 }
 
@@ -657,7 +652,13 @@ $current_url = "$base_url/public/edition.php?id=$edition_id";
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <img id="clipPreviewImage" src="" alt="Clipped Image" class="img-fluid mb-3">
+                <img id="clipPreviewImage" src="" alt="Clipped Image" class="img-fluid mb-3"
+                     onerror="console.error('Failed to load clip preview image:', this.src); this.style.display='none'; document.getElementById('clipImageError').style.display='block';">
+                <div id="clipImageError" style="display: none; padding: 20px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; text-align: center;">
+                    <p><strong>Failed to load clipped image</strong></p>
+                    <p>The image may not exist or the path is incorrect.</p>
+                    <p id="clipImagePath"></p>
+                </div>
                 
                 <!-- Open and Download Buttons -->
                 <div class="popup-actions mb-3 text-center">

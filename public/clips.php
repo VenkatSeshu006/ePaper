@@ -33,8 +33,9 @@ $logo_result = $stmt->fetch(PDO::FETCH_ASSOC);
 $area_mapping_logo = $logo_result ? $logo_result['value'] : '/uploads/settings/default-logo.png';
 
 // Construct the full URL for sharing
-$base_url = "https://" . $_SERVER['HTTP_HOST'];
-$clip_url = "$base_url/public/clips.php?id=$clip_id";
+$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+$base_url = $protocol . $_SERVER['HTTP_HOST'];
+$clip_url = "$base_url/ePaper/public/clips.php?id=$clip_id";
 ?>
 
 <!DOCTYPE html>
@@ -88,12 +89,28 @@ $clip_url = "$base_url/public/clips.php?id=$clip_id";
                 <a href="#" class="social-share-btn" data-platform="email" data-url="<?php echo $clip_url; ?>"><i class="fas fa-envelope"></i></a>
             </div>
             <div class="card-body text-center">
-                <img src="<?php echo htmlspecialchars($clip['clip_path']); ?>" alt="Clipped Image" class="popup-image">
+                <?php 
+                $clip_image_path = $clip['clip_path'];
+                // Ensure path starts with forward slash for web access
+                if (substr($clip_image_path, 0, 1) !== '/') {
+                    $clip_image_path = '/' . $clip_image_path;
+                }
+                // Handle ePaper subdirectory - if path doesn't include /ePaper/, add it
+                if (strpos($clip_image_path, '/ePaper/') === false && strpos($clip_image_path, '/uploads/') === 0) {
+                    $clip_image_path = '/ePaper' . $clip_image_path;
+                }
+                ?>
+                <img src="<?php echo htmlspecialchars($clip_image_path); ?>" alt="Clipped Image" class="popup-image" style="max-width: 100%; height: auto;"
+                     onerror="console.error('Failed to load image:', this.src); this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <div style="display: none; padding: 20px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px;">
+                    <p><strong>Image not found:</strong> <?php echo htmlspecialchars($clip_image_path); ?></p>
+                    <p>Please check if the file exists at this location.</p>
+                </div>
                 
                 <!-- Open and Download Buttons -->
                 <div class="popup-actions mt-3">
                     <a href="<?php echo htmlspecialchars($clip_url); ?>" class="popup-button" target="_blank"><i class="fas fa-external-link-alt"></i> Open</a>
-                    <a href="<?php echo htmlspecialchars($clip['clip_path']); ?>" class="popup-button" download><i class="fas fa-download"></i> Download</a>
+                    <a href="<?php echo htmlspecialchars($clip_image_path); ?>" class="popup-button" download><i class="fas fa-download"></i> Download</a>
                 </div>
             </div>
             <div class="card-footer social-share">

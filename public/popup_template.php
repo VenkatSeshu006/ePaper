@@ -7,20 +7,49 @@ if (!$clip_id) {
     die('No clip specified.');
 }
 
-// Fetch clip details from database
-$stmt = $pdo->prepare("SELECT clip_path FROM clips WHERE id = ?");
+// Fetch clip details from database - using correct table name
+$stmt = $pdo->prepare("SELECT clip_path FROM clipped_images WHERE id = ?");
 $stmt->execute([$clip_id]);
 $clip = $stmt->fetch(PDO::FETCH_ASSOC);
 
-if (!$clip || !file_exists($_SERVER['DOCUMENT_ROOT'] . $clip['clip_path'])) {
-    die('Clip not found.');
+if (!$clip) {
+    die('Clip not found in database.');
+}
+
+// Check if file exists (handle both relative and absolute paths)
+$file_path = $clip['clip_path'];
+if (substr($file_path, 0, 1) !== '/') {
+    $file_path = '/' . $file_path;
+}
+
+// Handle ePaper subdirectory - check if path includes /ePaper/ or not
+if (strpos($file_path, '/ePaper/') === false) {
+    // Old format path, construct correct file system path
+    $full_file_path = __DIR__ . '/../' . ltrim(str_replace('/ePaper/', '', $file_path), '/');
+} else {
+    // New format path, use document root
+    $full_file_path = $_SERVER['DOCUMENT_ROOT'] . $file_path;
+}
+
+if (!file_exists($full_file_path)) {
+    // Try alternative path construction
+    $alt_file_path = __DIR__ . '/../uploads/clips/' . basename($file_path);
+    if (!file_exists($alt_file_path)) {
+        die('Clip file not found on server. Tried: ' . htmlspecialchars($file_path) . ' and ' . htmlspecialchars($alt_file_path));
+    }
 }
 
 $clip_path = $clip['clip_path'];
 
+// Ensure clip_path starts with forward slash for web access
+if (substr($clip_path, 0, 1) !== '/') {
+    $clip_path = '/' . $clip_path;
+}
+
 // Construct the full URL for sharing
-$base_url = "https://" . $_SERVER['HTTP_HOST'];
-$popup_url = "$base_url/public/popup_template.php?clip_id=" . urlencode($clip_id);
+$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+$base_url = $protocol . $_SERVER['HTTP_HOST'];
+$popup_url = "$base_url/ePaper/public/popup_template.php?clip_id=" . urlencode($clip_id);
 ?>
 
 <!DOCTYPE html>
@@ -102,7 +131,11 @@ $popup_url = "$base_url/public/popup_template.php?clip_id=" . urlencode($clip_id
 </head>
 <body>
     <div class="mini-popup">
-        <img src="<?php echo htmlspecialchars($clip_path); ?>" alt="Cropped Clip" class="clip-image">
+        <img src="<?php echo htmlspecialchars($clip_path); ?>" alt="Cropped Clip" class="clip-image"
+             onerror="console.error('Failed to load clip image:', this.src); this.style.display='none'; this.nextElementSibling.style.display='block';">
+        <div style="display: none; padding: 20px; text-align: center; background: #f8f9fa;">
+            <p><strong>Image not found:</strong><br><?php echo htmlspecialchars($clip_path); ?></p>
+        </div>
         <div class="popup-actions">
             <a href="<?php echo htmlspecialchars($popup_url); ?>" class="popup-button" target="_blank"><i class="fas fa-external-link-alt"></i> Open</a>
             <a href="<?php echo htmlspecialchars($clip_path); ?>" class="popup-button" download><i class="fas fa-download"></i> Download</a>

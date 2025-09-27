@@ -305,13 +305,25 @@ document.addEventListener('DOMContentLoaded', function() {
                                         const data = JSON.parse(response);
                                         if (data.success) {
                                             console.log('Clip saved successfully:', data);
-                                            const clipUrl = `${baseUrl}/public/clips.php?id=${data.clip_id}`;
-                                            document.getElementById('clipPreviewImage').src = data.clip_path;
+                                            const clipUrl = `${baseUrl}/ePaper/public/clips.php?id=${data.clip_id}`;
+                                            
+                                            // Ensure clip path starts with forward slash for web access
+                                            let clipImagePath = data.clip_path;
+                                            if (!clipImagePath.startsWith('/')) {
+                                                clipImagePath = '/' + clipImagePath;
+                                            }
+                                            // The save_clip.php now returns paths with /ePaper/ prefix, so use directly
+                                            
+                                            console.log('Setting clip image src to:', clipImagePath);
+                                            document.getElementById('clipPreviewImage').src = clipImagePath;
+                                            document.getElementById('clipPreviewImage').style.display = 'block';
+                                            document.getElementById('clipImageError').style.display = 'none';
+                                            document.getElementById('clipImagePath').textContent = 'Path: ' + clipImagePath;
                                             document.getElementById('clipPreviewLink').value = clipUrl;
                                             
                                             // Set Open and Download button URLs
                                             document.getElementById('clipOpenBtn').href = clipUrl;
-                                            document.getElementById('clipDownloadBtn').href = data.clip_path;
+                                            document.getElementById('clipDownloadBtn').href = clipImagePath;
                                             
                                             document.querySelectorAll('#clipPreviewModal .social-share-btn').forEach(btn => {
                                                 btn.setAttribute('data-url', clipUrl);
@@ -328,8 +340,9 @@ document.addEventListener('DOMContentLoaded', function() {
                                             alert('Failed to save clip: ' + data.message);
                                         }
                                     } catch (e) {
-                                        console.error('Failed to parse JSON response:', e, response);
-                                        alert('Server returned invalid response. Please try again.');
+                                        console.error('Failed to parse JSON response:', e);
+                                        console.error('Raw response:', response);
+                                        alert('Server returned invalid response: ' + response.substring(0, 100) + '...');
                                     }
                                 },
                                 error: function(xhr, status, error) {

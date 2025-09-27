@@ -7,7 +7,285 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 /**
- * Function to create composite image with logo above or below cropped image
+ * Function to add border and logo watermark to clipped image
+ */
+function addWatermarkToClip($croppedImagePath, $logoPath, $borderSettings = null) {
+    // Check if logo file exists (logo is optional, border can be added without logo)
+    $hasLogo = $logoPath && file_exists($logoPath);
+    if (!$hasLogo && !$borderSettings) {
+        return $croppedImagePath; // Return original if no logo and no border
+    }
+    
+    // Get image info
+    $croppedInfo = getimagesize($croppedImagePath);
+    if (!$croppedInfo) {
+        return $croppedImagePath; // Return original if can't read main image
+    }
+    
+    // Load cropped image
+    $croppedImage = null;
+    switch ($croppedInfo[2]) {
+        case IMAGETYPE_JPEG:
+            $croppedImage = imagecreatefromjpeg($croppedImagePath);
+            break;
+        case IMAGETYPE_PNG:
+            $croppedImage = imagecreatefrompng($croppedImagePath);
+            break;
+        default:
+            return $croppedImagePath;
+    }
+    
+    if (!$croppedImage) {
+        return $croppedImagePath;
+    }
+    
+    // Get original dimensions
+    $originalWidth = imagesx($croppedImage);
+    $originalHeight = imagesy($croppedImage);
+    
+    // Border settings - defaults or from parameters
+    $borderWidth = isset($borderSettings['width']) ? $borderSettings['width'] : 2;
+    $borderColor = isset($borderSettings['color']) ? $borderSettings['color'] : [220, 220, 220];
+    
+    // Create new image with border
+    $newWidth = $originalWidth + ($borderWidth * 2);
+    $newHeight = $originalHeight + ($borderWidth * 2);
+    $borderedImage = imagecreatetruecolor($newWidth, $newHeight);
+    
+    // Set border color and fill
+    $borderColorResource = imagecolorallocate($borderedImage, $borderColor[0], $borderColor[1], $borderColor[2]);
+    imagefill($borderedImage, 0, 0, $borderColorResource);
+    
+    // Copy original image onto bordered image (centered with border)
+    imagecopy($borderedImage, $croppedImage, $borderWidth, $borderWidth, 0, 0, $originalWidth, $originalHeight);
+    imagedestroy($croppedImage);
+    
+    // Now work with the bordered image
+    $croppedImage = $borderedImage;
+    $croppedWidth = $newWidth;
+    $croppedHeight = $newHeight;
+    
+    // Handle logo watermark if present
+    if ($hasLogo) {
+        $logoInfo = getimagesize($logoPath);
+        if (!$logoInfo) {
+            // Continue without logo if can't read it
+            $hasLogo = false;
+        } else {
+            // Load logo image
+            $logoImage = null;
+            switch ($logoInfo[2]) {
+                case IMAGETYPE_JPEG:
+                    $logoImage = imagecreatefromjpeg($logoPath);
+                    break;
+                case IMAGETYPE_PNG:
+                    $logoImage = imagecreatefrompng($logoPath);
+                    break;
+                default:
+                    $hasLogo = false;
+            }
+            
+            if ($logoImage && $hasLogo) {
+                $logoWidth = imagesx($logoImage);
+                $logoHeight = imagesy($logoImage);
+                
+                // Calculate watermark size (max 25% of image width/height)
+                $maxWatermarkWidth = (int)($croppedWidth * 0.25);
+                $maxWatermarkHeight = (int)($croppedHeight * 0.25);
+                
+                // Scale logo if needed
+                if ($logoWidth > $maxWatermarkWidth || $logoHeight > $maxWatermarkHeight) {
+                    $scale = min($maxWatermarkWidth / $logoWidth, $maxWatermarkHeight / $logoHeight);
+                    $newLogoWidth = (int)($logoWidth * $scale);
+                    $newLogoHeight = (int)($logoHeight * $scale);
+                    
+                    // Create resized logo
+                    $resizedLogo = imagecreatetruecolor($newLogoWidth, $newLogoHeight);
+                    
+                    // Preserve transparency for PNG
+                    if ($logoInfo[2] == IMAGETYPE_PNG) {
+                        imagealphablending($resizedLogo, false);
+                        imagesavealpha($resizedLogo, true);
+                        $transparent = imagecolorallocatealpha($resizedLogo, 255, 255, 255, 127);
+                        imagefill($resizedLogo, 0, 0, $transparent);
+                    }
+                    
+                    imagecopyresampled($resizedLogo, $logoImage, 0, 0, 0, 0, $newLogoWidth, $newLogoHeight, $logoWidth, $logoHeight);
+                    imagedestroy($logoImage);
+                    $logoImage = $resizedLogo;
+                    $logoWidth = $newLogoWidth;
+                    $logoHeight = $newLogoHeight;
+                }
+                
+                // Enable alpha blending for proper transparency
+                imagealphablending($croppedImage, true);
+                
+                // Position watermark at bottom left with padding (accounting for border)
+                $padding = 10 + $borderWidth;
+                $logoX = $padding;
+                $logoY = $croppedHeight - $logoHeight - $padding;
+                
+                // Create semi-transparent version of logo for watermark effect
+                $watermarkOpacity = 80; // 80% opacity
+                
+                // Copy logo with transparency to bordered image
+                imagecopymerge($croppedImage, $logoImage, $logoX, $logoY, 0, 0, $logoWidth, $logoHeight, $watermarkOpacity);
+                
+                // Clean up logo resources
+                imagedestroy($logoImage);
+            }
+        }
+    }
+    
+    // Save the final image (with border and optional watermark)
+    $success = false;
+    switch ($croppedInfo[2]) {
+        case IMAGETYPE_JPEG:
+            $success = imagejpeg($croppedImage, $croppedImagePath, 90);
+            break;
+        case IMAGETYPE_PNG:
+            imagesavealpha($croppedImage, true);
+            $success = imagepng($croppedImage, $croppedImagePath);
+            break;
+    }
+    
+    // Clean up
+    imagedestroy($croppedImage);
+    
+    // Get image info
+    $croppedInfo = getimagesize($croppedImagePath);
+    $logoInfo = getimagesize($logoPath);
+    
+    if (!$croppedInfo || !$logoInfo) {
+        return $croppedImagePath; // Return original if can't read images
+    }
+    
+    // Create image resources
+    $croppedImage = null;
+    $logoImage = null;
+    
+    // Load cropped image based on type
+    switch ($croppedInfo[2]) {
+        case IMAGETYPE_JPEG:
+            $croppedImage = imagecreatefromjpeg($croppedImagePath);
+            break;
+        case IMAGETYPE_PNG:
+            $croppedImage = imagecreatefrompng($croppedImagePath);
+            break;
+        default:
+            return $croppedImagePath;
+    }
+    
+    // Load logo image based on type
+    switch ($logoInfo[2]) {
+        case IMAGETYPE_JPEG:
+            $logoImage = imagecreatefromjpeg($logoPath);
+            break;
+        case IMAGETYPE_PNG:
+            $logoImage = imagecreatefrompng($logoPath);
+            break;
+        default:
+            imagedestroy($croppedImage);
+            return $croppedImagePath;
+    }
+    
+    if (!$croppedImage || !$logoImage) {
+        if ($croppedImage) imagedestroy($croppedImage);
+        if ($logoImage) imagedestroy($logoImage);
+        return $croppedImagePath;
+    }
+    
+    // Get dimensions
+    $croppedWidth = imagesx($croppedImage);
+    $croppedHeight = imagesy($croppedImage);
+    $logoWidth = imagesx($logoImage);
+    $logoHeight = imagesy($logoImage);
+    
+    // Border settings - defaults or from parameters
+    $borderWidth = isset($borderSettings['width']) ? $borderSettings['width'] : 2; // 2px lightweight border
+    $borderColor = isset($borderSettings['color']) ? $borderSettings['color'] : [0, 0, 0]; // Black color (RGB)
+    
+    // Create new image with border
+    $newWidth = $croppedWidth + ($borderWidth * 2);
+    $newHeight = $croppedHeight + ($borderWidth * 2);
+    $borderedImage = imagecreatetruecolor($newWidth, $newHeight);
+    
+    // Set border color
+    $borderColorResource = imagecolorallocate($borderedImage, $borderColor[0], $borderColor[1], $borderColor[2]);
+    imagefill($borderedImage, 0, 0, $borderColorResource);
+    
+    // Copy original image onto bordered image (centered with border)
+    imagecopy($borderedImage, $croppedImage, $borderWidth, $borderWidth, 0, 0, $croppedWidth, $croppedHeight);
+    
+    // Replace original image with bordered version
+    imagedestroy($croppedImage);
+    $croppedImage = $borderedImage;
+    $croppedWidth = $newWidth;
+    $croppedHeight = $newHeight;
+    
+    // Calculate watermark size (max 25% of image width, proportional height)
+    $maxWatermarkWidth = (int)($croppedWidth * 0.25);
+    $maxWatermarkHeight = (int)($croppedHeight * 0.25);
+    
+    // Scale logo if needed
+    if ($logoWidth > $maxWatermarkWidth || $logoHeight > $maxWatermarkHeight) {
+        $scale = min($maxWatermarkWidth / $logoWidth, $maxWatermarkHeight / $logoHeight);
+        $newLogoWidth = (int)($logoWidth * $scale);
+        $newLogoHeight = (int)($logoHeight * $scale);
+        
+        // Create resized logo
+        $resizedLogo = imagecreatetruecolor($newLogoWidth, $newLogoHeight);
+        
+        // Preserve transparency for PNG
+        if ($logoInfo[2] == IMAGETYPE_PNG) {
+            imagealphablending($resizedLogo, false);
+            imagesavealpha($resizedLogo, true);
+            $transparent = imagecolorallocatealpha($resizedLogo, 255, 255, 255, 127);
+            imagefill($resizedLogo, 0, 0, $transparent);
+        }
+        
+        imagecopyresampled($resizedLogo, $logoImage, 0, 0, 0, 0, $newLogoWidth, $newLogoHeight, $logoWidth, $logoHeight);
+        imagedestroy($logoImage);
+        $logoImage = $resizedLogo;
+        $logoWidth = $newLogoWidth;
+        $logoHeight = $newLogoHeight;
+    }
+    
+    // Enable alpha blending for proper transparency
+    imagealphablending($croppedImage, true);
+    
+    // Position watermark at bottom left with padding (accounting for border)
+    $padding = 10 + $borderWidth; // Add border width to padding
+    $logoX = $padding;
+    $logoY = $croppedHeight - $logoHeight - $padding;
+    
+    // Create semi-transparent version of logo for watermark effect
+    $watermarkOpacity = 80; // 80% opacity (20% transparent)
+    
+    // Copy logo with transparency to cropped image
+    imagecopymerge($croppedImage, $logoImage, $logoX, $logoY, 0, 0, $logoWidth, $logoHeight, $watermarkOpacity);
+    
+    // Save the watermarked image
+    $success = false;
+    switch ($croppedInfo[2]) {
+        case IMAGETYPE_JPEG:
+            $success = imagejpeg($croppedImage, $croppedImagePath, 90);
+            break;
+        case IMAGETYPE_PNG:
+            imagesavealpha($croppedImage, true);
+            $success = imagepng($croppedImage, $croppedImagePath);
+            break;
+    }
+    
+    // Clean up
+    imagedestroy($croppedImage);
+    imagedestroy($logoImage);
+    
+    return $success ? $croppedImagePath : $croppedImagePath;
+}
+
+/**
+ * Function to create composite image with logo above or below cropped image (legacy)
  */
 function mergeLogoWithImage($croppedImagePath, $logoPath, $placement = 'top') {
     // Check if logo file exists
@@ -221,36 +499,81 @@ if ($_FILES['image']['error'] !== UPLOAD_ERR_OK) {
 $timestamp = date('YmdHis');
 $filename = "clip_{$edition_id}_{$image_id}_{$timestamp}.jpg";
 $filepath = $upload_dir . $filename;
-$public_path = "/uploads/clips/{$filename}";
+$public_path = "/ePaper/uploads/clips/{$filename}"; // Correct path including ePaper subdirectory
 
 error_log("Attempting to save file to: $filepath");
 
 if (move_uploaded_file($_FILES['image']['tmp_name'], $filepath)) {
     error_log("File saved successfully to: $filepath");
     
-    // Get area mapping logo and placement from settings
+    // Get site logo and border settings for watermark
     try {
-        $stmt = $pdo->prepare("SELECT key_name, value FROM settings WHERE key_name IN ('area_mapping_logo', 'area_mapping_logo_position')");
+        $stmt = $pdo->prepare("SELECT key_name, value FROM settings WHERE key_name IN ('site_logo', 'clip_border_width', 'clip_border_color')");
         $stmt->execute();
         $settingsResults = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
         
         $logoPath = null;
-        $placement = 'top'; // Default placement
+        $borderSettings = [];
         
-        if (!empty($settingsResults['area_mapping_logo'])) {
-            $logoPath = '../' . $settingsResults['area_mapping_logo'];
+        // Process logo path
+        if (!empty($settingsResults['site_logo'])) {
+            // Handle path construction - remove /ePaper/ prefix since we're using relative path
+            $logoRelativePath = str_replace('/ePaper/', '', $settingsResults['site_logo']);
+            $logoPath = '../' . $logoRelativePath;
+            
+            // Fallback: if the above doesn't work, try direct path
+            if (!file_exists($logoPath)) {
+                $logoPath = '../uploads/settings/' . basename($settingsResults['site_logo']);
+            }
         }
         
-        if (!empty($settingsResults['area_mapping_logo_position'])) {
-            $placement = $settingsResults['area_mapping_logo_position'];
-        }
+        // Process border settings
+        $borderSettings['width'] = isset($settingsResults['clip_border_width']) ? (int)$settingsResults['clip_border_width'] : 2;
         
-        // Merge logo with clipped image if logo exists
-        if ($logoPath && file_exists($logoPath)) {
-            error_log("Merging logo with clip image. Logo: $logoPath, Placement: $placement");
-            mergeLogoWithImage($filepath, $logoPath, $placement);
+        // Parse border color (format: "r,g,b" or hex "#rrggbb")
+        if (!empty($settingsResults['clip_border_color'])) {
+            $colorString = $settingsResults['clip_border_color'];
+            if (strpos($colorString, '#') === 0) {
+                // Hex color
+                $hex = ltrim($colorString, '#');
+                $borderSettings['color'] = [
+                    hexdec(substr($hex, 0, 2)),
+                    hexdec(substr($hex, 2, 2)),
+                    hexdec(substr($hex, 4, 2))
+                ];
+            } elseif (strpos($colorString, ',') !== false) {
+                // RGB format "r,g,b"
+                $rgb = explode(',', $colorString);
+                $borderSettings['color'] = [
+                    (int)trim($rgb[0]),
+                    (int)trim($rgb[1] ?? 0),
+                    (int)trim($rgb[2] ?? 0)
+                ];
+            } else {
+                // Default light gray
+                $borderSettings['color'] = [220, 220, 220];
+            }
         } else {
-            error_log("No logo to merge or logo file not found: $logoPath");
+            $borderSettings['color'] = [0, 0, 0]; // Default black
+        }
+        
+            // Add border and watermark to clipped image
+        if ($logoPath && file_exists($logoPath)) {
+            error_log("Adding border and watermark to clip image. Logo: $logoPath, Border: " . $borderSettings['width'] . "px");
+            $watermarkResult = addWatermarkToClip($filepath, $logoPath, $borderSettings);
+            if ($watermarkResult === $filepath) {
+                error_log("Border and watermark added successfully to: $filepath");
+            } else {
+                error_log("Border and watermark may have failed for: $filepath");
+            }
+        } else {
+            // Even without logo, add border
+            error_log("Adding border to clip image (no logo). Border: " . $borderSettings['width'] . "px");
+            $watermarkResult = addWatermarkToClip($filepath, null, $borderSettings);
+            if ($logoPath) {
+                error_log("Logo path attempted but failed: $logoPath");
+                error_log("File exists check: " . (file_exists($logoPath) ? 'true' : 'false'));
+            }
         }
     } catch (Exception $e) {
         error_log("Error retrieving logo settings: " . $e->getMessage());

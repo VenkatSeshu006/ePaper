@@ -1,7 +1,10 @@
 <?php
 // public/includes/helpers.php
 
-require_once '../config.php';
+// Only include config if $pdo is not already available
+if (!isset($pdo)) {
+    require_once __DIR__ . '/../../config.php';
+}
 
 function get_setting($key) {
     global $pdo;

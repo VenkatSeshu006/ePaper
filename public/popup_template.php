@@ -1,4 +1,4 @@
-<?php
+    <?php
 // public/popup_template.php
 require_once '../config.php';
 

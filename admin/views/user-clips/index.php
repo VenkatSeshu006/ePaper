@@ -48,7 +48,8 @@ $base_url = "https://" . $_SERVER['HTTP_HOST'];
             <div class="mb-3">
                 <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete the selected clips?')">Delete Selected</button>
             </div>
-            <table class="table table-bordered">
+            <div class="table-responsive">
+                <table class="table table-bordered">
                 <thead>
                     <tr>
                         <th><input type="checkbox" id="selectAll"></th>
@@ -82,7 +83,8 @@ $base_url = "https://" . $_SERVER['HTTP_HOST'];
                         </tr>
                     <?php endif; ?>
                 </tbody>
-            </table>
+                </table>
+            </div>
         </form>
     </div>
 </section>

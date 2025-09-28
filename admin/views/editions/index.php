@@ -27,17 +27,18 @@ $categories = $categoryController->getAllCategories();
                 <i class="fas fa-plus"></i> Quick Add (Legacy)
             </a>
         </div>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Title</th>
-                    <th>Category</th>
-                    <th>Date</th>
-                    <th>Featured</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Date</th>
+                        <th>Featured</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
             <tbody>
                 <?php foreach ($editions as $edition): ?>
                     <tr>
@@ -54,7 +55,8 @@ $categories = $categoryController->getAllCategories();
                     </tr>
                 <?php endforeach; ?>
             </tbody>
-        </table>
+            </table>
+        </div>
     </div>
 </section>
 <?php require_once '../../includes/footer.php'; // Include the shared footer ?>

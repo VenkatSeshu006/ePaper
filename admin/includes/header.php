@@ -83,12 +83,154 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         .navbar-brand:hover {
             color: #007bff; /* Blue color on hover */
         }
+
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            /* Mobile navbar adjustments */
+            .navbar-brand {
+                font-size: 1rem;
+                margin-right: 10px;
+            }
+            
+            .navbar-user .username {
+                display: none; /* Hide username on mobile to save space */
+            }
+            
+            /* Mobile sidebar improvements */
+            .main-sidebar {
+                position: fixed;
+                z-index: 9999;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar-open .main-sidebar {
+                transform: translateX(0);
+            }
+            
+            /* Content wrapper adjustments for mobile */
+            .content-wrapper {
+                margin-left: 0 !important;
+                padding: 10px;
+            }
+            
+            /* Mobile table improvements */
+            .table-responsive {
+                border: none;
+            }
+            
+            .table td, .table th {
+                padding: 8px 4px;
+                font-size: 0.85rem;
+                white-space: nowrap;
+            }
+            
+            /* Mobile form improvements */
+            .form-group {
+                margin-bottom: 15px;
+            }
+            
+            .btn {
+                padding: 8px 12px;
+                font-size: 0.9rem;
+                margin-bottom: 5px;
+            }
+            
+            /* Card adjustments for mobile */
+            .card {
+                margin-bottom: 15px;
+            }
+            
+            .card-header {
+                padding: 10px 15px;
+            }
+            
+            .card-body {
+                padding: 15px;
+            }
+            
+            /* Content header adjustments */
+            .content-header h1 {
+                font-size: 1.5rem;
+                margin-bottom: 10px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            /* Extra small devices adjustments */
+            .container-fluid {
+                padding: 5px 10px;
+            }
+            
+            .table td, .table th {
+                padding: 6px 2px;
+                font-size: 0.8rem;
+            }
+            
+            .btn-sm {
+                padding: 4px 8px;
+                font-size: 0.75rem;
+            }
+            
+            .content-header h1 {
+                font-size: 1.3rem;
+            }
+        }
+        
+        /* Mobile navigation toggle */
+        .mobile-nav-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: #333;
+            padding: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-nav-toggle {
+                display: block;
+            }
+        }
     </style>
+    
+    <!-- Mobile JavaScript -->
+    <script>
+        function toggleMobileSidebar() {
+            document.body.classList.toggle('sidebar-open');
+        }
+        
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('click', function(event) {
+                if (window.innerWidth <= 768) {
+                    const sidebar = document.querySelector('.main-sidebar');
+                    const toggle = document.querySelector('.mobile-nav-toggle');
+                    
+                    if (!sidebar.contains(event.target) && !toggle.contains(event.target)) {
+                        document.body.classList.remove('sidebar-open');
+                    }
+                }
+            });
+            
+            // Close sidebar when window is resized to desktop
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    document.body.classList.remove('sidebar-open');
+                }
+            });
+        });
+    </script>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
     <div class="wrapper">
         <!-- Navbar -->
         <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+            <!-- Mobile navigation toggle -->
+            <button class="mobile-nav-toggle" onclick="toggleMobileSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            
             <!-- Site Title -->
             <a href="<?php echo $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . '/ePaper/admin/index.php'; ?>" class="navbar-brand"><?= htmlspecialchars($settings['site_name'] ?? 'Admin Panel') ?></a>
 

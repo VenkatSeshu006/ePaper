@@ -39,7 +39,8 @@ $categories = $categoryController->getAllCategories();
         <?php endif; ?>
 
         <a href="add.php" class="btn btn-primary mb-3">Add New Category</a>
-        <table class="table table-bordered">
+        <div class="table-responsive">
+            <table class="table table-bordered">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -67,7 +68,8 @@ $categories = $categoryController->getAllCategories();
                     </tr>
                 <?php endif; ?>
             </tbody>
-        </table>
+            </table>
+        </div>
     </div>
 </section>
 <?php require_once '../../includes/footer.php'; // Include the shared footer ?>

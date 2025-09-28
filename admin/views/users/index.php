@@ -25,7 +25,8 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <a href="add.php" class="btn btn-primary mb-3">Add User</a>
 
         <!-- Users Table -->
-        <table class="table table-bordered table-hover">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -54,7 +55,8 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </tr>
                 <?php endforeach; ?>
             </tbody>
-        </table>
+            </table>
+        </div>
     </div>
 </section>
 <?php require_once '../../includes/footer.php'; ?>
